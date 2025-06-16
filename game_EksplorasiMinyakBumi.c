@@ -117,7 +117,10 @@ void print_map(const GameState* game) {
         }
         if ((i + 1) % GRID_SIZE == 0) printf("\n");
     }
-    printf("\nBudget: $%d\n", game->budget);
+    if (game->budget > 0)
+    {
+            printf("\nBudget: $%d\n", game->budget);
+    }
 }
 
 // Proses efek sel
@@ -197,9 +200,22 @@ int main() {
         while (game_running) {
             print_map(&game);
             
-            if (game.budget <= 0) {
+             if (game.budget <= 0) {
                 printf("Game Over! Budget Anda habis.\n");
-                break;
+                printf("Apakah anda ingin mencoba lagi? (y/n): ");
+                scanf(" %c", &play_again);
+                
+                if (play_again == 'y' || play_again == 'Y') {
+                    reset_game(&game, false);  // false = tidak menyimpan budget sebelumnya
+                    game.budget = INITIAL_BUDGET;  // reset ke 1000
+                    game_running = true;
+                    printf("\nMemulai permainan baru dengan budget $%d\n", game.budget);
+                    continue;
+                } else {
+                    printf("\nTerima kasih telah bermain!\n");
+                    free(game.graph);
+                    return 0;
+                }
             }
             
             printf("Masukkan gerakan (w/a/s/d): ");
@@ -214,8 +230,9 @@ int main() {
                 game_running = false;
             }
         }
-        
-        printf("\nApakah anda ingin melanjutkan permainan? (y/n): ");
+        if (game.budget > 0)
+        {
+            printf("\nApakah anda ingin melanjutkan permainan? (y/n): ");
         scanf(" %c", &play_again);
         
         if (play_again == 'y' || play_again == 'Y') {
@@ -228,6 +245,7 @@ int main() {
             free(game.graph);
             break;
         }
+        }   
     }
     
     return 0;
